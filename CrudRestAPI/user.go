@@ -10,8 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-var err error
+var (
+	*gorm.DB
+	err error
+)
 
 const DNS = "root:admin@tcp(127.0.0.1:3306)/godb?charset=utf8mb4&parseTime=True&loc=Local"
 
@@ -26,9 +28,12 @@ func InitialMigration() {
 	DB, err = gorm.Open(mysql.Open(DNS), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err.Error())
-		panic("Cannot connect to DB")
+		panic("Cannot connect to DB", err)
 	}
-	DB.AutoMigrate(&User{})
+	err := DB.AutoMigrate(&User{})
+	if err != nil{
+		panic("migration failed", err)
+	}
 }
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
